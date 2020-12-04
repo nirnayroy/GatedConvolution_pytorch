@@ -532,3 +532,31 @@ class NoriInpaintDataset(NoriBaseDataset):
         masks = {mask_type:self.transforms_fun(self.read_mask(mask_paths[mask_type], mask_type)) for mask_type in mask_paths}
 
         return img, masks, self.img_cls_ids[index]
+
+class CMB_Dataset(Dataset):
+    def __init__(self, file_path='data/train_CMB_2DMaps_ex10000_res280x140.npy'
+        , mask_file='data/kp2_mask_processed_nside16_res280x140.npy',
+         batch_size=128, gpu=True):
+        """
+        Args:
+            csv_file (string): Path to the csv file with annotations.
+        """
+        super(data.Dataset, self).__init__()
+        self.npmaps = np.load(file_path)
+        self.mask = 1. - np.load(mask_file)
+        self.b_size = batch_size
+
+    def __len__(self):
+        return len(self.npmaps)
+
+    def __getitem__(self, idx):
+        sample = self.npmaps[idx]
+        if gpu:
+            return (torch.cuda.Tensor(sample), torch.cuda.Tensor(mask))
+        else:
+            return (torch.Tensor(sample), torch.Tensor(mask))
+    def loader(self)
+        dataloader = DataLoader(self,
+            batch_size=self.b_size,
+            shuffle=False)
+        return dataloader

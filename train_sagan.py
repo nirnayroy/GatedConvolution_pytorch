@@ -243,11 +243,13 @@ def train(netG, netD, GANLoss, ReconLoss, DLoss, optG, optD, dataloader, epoch, 
 
 def main():
     logger_init()
+    '''
     dataset_type = config.DATASET
     batch_size = config.BATCH_SIZE
-
+    '''
     # Dataset setting
     logger.info("Initialize the dataset...")
+    '''
     train_dataset = InpaintDataset(config.DATA_FLIST[dataset_type][0],\
                                       {mask_type:config.DATA_FLIST[config.MASKDATASET][mask_type][0] for mask_type in config.MASK_TYPES}, \
                                       resize_shape=tuple(config.IMG_SHAPES), random_bbox_shape=config.RANDOM_BBOX_SHAPE, \
@@ -264,7 +266,9 @@ def main():
     val_loader = val_dataset.loader(batch_size=1, shuffle=False,
                                         num_workers=1)
     #print(len(val_loader))
-
+    '''
+    train_loader = CMB_Dataset().loader()
+    '''
     ### Generate a new val data
     val_datas = []
     j = 0
@@ -281,7 +285,7 @@ def main():
     val_loader = val_dataset.loader(batch_size=1, shuffle=False,
                                         num_workers=1)
     logger.info("Finish the dataset initialization.")
-
+    '''
     # Define the Network Structure
     logger.info("Define the Network Structure and Losses")
     netG = InpaintSANet()
@@ -316,7 +320,7 @@ def main():
         train(netG, netD, gan_loss, recon_loss, dis_loss, optG, optD, train_loader, i, device=cuda0, val_datas=val_datas)
 
         # validate
-        validate(netG, netD, gan_loss, recon_loss, dis_loss, optG, optD, val_datas, i, device=cuda0)
+        #validate(netG, netD, gan_loss, recon_loss, dis_loss, optG, optD, val_datas, i, device=cuda0)
 
         saved_model = {
             'epoch': i + 1,
