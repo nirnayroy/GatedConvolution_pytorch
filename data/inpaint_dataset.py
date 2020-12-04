@@ -555,7 +555,7 @@ class CMB_Dataset(Dataset):
             return (torch.cuda.Tensor(sample), torch.cuda.Tensor(mask))
         else:
             return (torch.Tensor(sample), torch.Tensor(mask))
-    def loader(self)
+    def loader(self):
         dataloader = DataLoader(self,
             batch_size=self.b_size,
             shuffle=False)
