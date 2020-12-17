@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-import cv2
+#import cv2
 import os
 from torchvision import transforms
 from PIL import Image
@@ -536,25 +536,23 @@ class NoriInpaintDataset(NoriBaseDataset):
 class CMB_Dataset(Dataset):
     def __init__(self, file_path='data/train_CMB_2DMaps_ex10000_res280x140.npy'
         , mask_file='data/kp2_mask_processed_nside16_res280x140.npy',
-         batch_size=128, gpu=True):
+         batch_size=128):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
         """
-        super(data.Dataset, self).__init__()
-        self.npmaps = np.load(file_path)
-        self.mask = 1. - np.load(mask_file)
+        super(Dataset, self).__init__()
+        self.npmaps = (np.load(file_path))
+        self.mask = (1. - np.load(mask_file)).reshape((1, 140, 280))
         self.b_size = batch_size
 
     def __len__(self):
         return len(self.npmaps)
 
     def __getitem__(self, idx):
-        sample = self.npmaps[idx]
-        if gpu:
-            return (torch.cuda.Tensor(sample), torch.cuda.Tensor(mask))
-        else:
-            return (torch.Tensor(sample), torch.Tensor(mask))
+        sample = self.npmaps[idx].reshape((1, 140, 280))
+        return torch.Tensor(sample), torch.Tensor(self.mask)
+
     def loader(self):
         dataloader = DataLoader(self,
             batch_size=self.b_size,

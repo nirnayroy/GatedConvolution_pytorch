@@ -107,7 +107,7 @@ class InpaintSANet(torch.nn.Module):
     """
     Inpaint generator, input should be 5*256*256, where 3*256*256 is the masked image, 1*256*256 for mask, 1*256*256 is the guidence
     """
-    def __init__(self, n_in_channel=5):
+    def __init__(self, n_in_channel=3):
         super(InpaintSANet, self).__init__()
         cnum = 32
         self.coarse_net = nn.Sequential(
@@ -136,7 +136,7 @@ class InpaintSANet(torch.nn.Module):
 
             GatedConv2dWithActivation(cnum, cnum//2, 3, 1, padding=get_pad(256, 3, 1)),
             #Self_Attn(cnum//2, 'relu'),
-            GatedConv2dWithActivation(cnum//2, 3, 3, 1, padding=get_pad(128, 3, 1), activation=None)
+            GatedConv2dWithActivation(cnum//2, 1, 3, 1, padding=get_pad(128, 3, 1), activation=None)
         )
 
         self.refine_conv_net = nn.Sequential(
@@ -168,7 +168,7 @@ class InpaintSANet(torch.nn.Module):
 
             GatedConv2dWithActivation(cnum, cnum//2, 3, 1, padding=get_pad(256, 3, 1)),
             #Self_Attn(cnum, 'relu'),
-            GatedConv2dWithActivation(cnum//2, 3, 3, 1, padding=get_pad(256, 3, 1), activation=None),
+            GatedConv2dWithActivation(cnum//2, 1, 3, 1, padding=get_pad(256, 3, 1), activation=None),
         )
 
 
@@ -189,6 +189,7 @@ class InpaintSANet(torch.nn.Module):
             input_imgs = torch.cat([masked_imgs, masks, torch.full_like(masks, 1.)], dim=1)
         else:
             input_imgs = torch.cat([masked_imgs, img_exs, masks, torch.full_like(masks, 1.)], dim=1)
+        #print(coarse_x.size())
         x = self.refine_conv_net(input_imgs)
         x= self.refine_attn(x)
         #print(x.size(), attention.size())
@@ -201,7 +202,7 @@ class InpaintSADirciminator(nn.Module):
         super(InpaintSADirciminator, self).__init__()
         cnum = 32
         self.discriminator_net = nn.Sequential(
-            SNConvWithActivation(5, 2*cnum, 4, 2, padding=get_pad(256, 5, 2)),
+            SNConvWithActivation(3, 2*cnum, 4, 2, padding=get_pad(256, 5, 2)),
             SNConvWithActivation(2*cnum, 4*cnum, 4, 2, padding=get_pad(128, 5, 2)),
             SNConvWithActivation(4*cnum, 8*cnum, 4, 2, padding=get_pad(64, 5, 2)),
             SNConvWithActivation(8*cnum, 8*cnum, 4, 2, padding=get_pad(32, 5, 2)),
